@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Eligibility Checker | CredAI Pulse{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <div class="mb-4">
+            <h2 class="mb-1"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i>Credit Eligibility Checker</h2>
+            <p class="text-secondary">Provide the applicant details below to analyze risk factors and run real-time approval predictions.</p>
+        </div>
+        
+        <form action="{{ url_for('submit_application') }}" method="POST" id="applyForm" class="needs-validation" novalidate>
+            <div class="row g-4">
+                
+                <!-- Section 1: Demographics -->
+                <div class="col-lg-6">
+                    <div class="glass-card h-100">
+                        <h4 class="mb-4 text-primary"><i class="fa-solid fa-user me-2"></i>Demographics</h4>
+                        
+                        <!-- Age Slider -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="Age" class="form-label">Age</label>
+                                <span id="val-Age" class="badge bg-secondary">35 years</span>
+                            </div>
+                            <input type="range" class="form-range" min="18" max="75" step="1" id="Age" name="Age" value="35">
+                        </div>
+                        
+                        <!-- Gender Selection -->
+                        <div class="mb-4">
+                            <label for="Gender" class="form-label">Gender</label>
+                            <select class="form-select" id="Gender" name="Gender" required>
+                                <option value="Male" selected>Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Marital Status -->
+                        <div class="mb-4">
+                            <label for="Marital_Status" class="form-label">Marital Status</label>
+                            <select class="form-select" id="Marital_Status" name="Marital_Status" required>
+                                <option value="Single" selected>Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Education Level -->
+                        <div class="mb-3">
+                            <label for="Education_Level" class="form-label">Highest Education Level</label>
+                            <select class="form-select" id="Education_Level" name="Education_Level" required>
+                                <option value="High School">High School</option>
+                                <option value="Graduate" selected>Graduate</option>
+                                <option value="Postgraduate">Postgraduate</option>
+                                <option value="Doctorate">Doctorate</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Employment & Income -->
+                <div class="col-lg-6">
+                    <div class="glass-card h-100">
+                        <h4 class="mb-4 text-secondary"><i class="fa-solid fa-briefcase me-2"></i>Employment & Income</h4>
+                        
+                        <!-- Employment Type -->
+                        <div class="mb-4">
+                            <label for="Employment_Type" class="form-label">Employment Type</label>
+                            <select class="form-select" id="Employment_Type" name="Employment_Type" required>
+                                <option value="Salaried" selected>Salaried / Employed</option>
+                                <option value="Self-Employed">Self-Employed / Business</option>
+                                <option value="Retired">Retired</option>
+                                <option value="Unemployed">Unemployed</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Employment Duration Slider -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="Employment_Duration_Years" class="form-label">Employment Duration</label>
+                                <span id="val-Employment_Duration_Years" class="badge bg-secondary">3 years</span>
+                            </div>
+                            <input type="range" class="form-range" min="0" max="40" step="0.5" id="Employment_Duration_Years" name="Employment_Duration_Years" value="3">
+                        </div>
+                        
+                        <!-- Annual Income Slider -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <label for="Annual_Income" class="form-label">Annual Income (USD)</label>
+                                <span id="val-Annual_Income" class="badge bg-secondary">$50,000</span>
+                            </div>
+                            <input type="range" class="form-range" min="5000" max="450000" step="5000" id="Annual_Income" name="Annual_Income" value="50000">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section 3: Financial Profile -->
+                <div class="col-12">
+                    <div class="glass-card">
+                        <h4 class="mb-4 text-accent"><i class="fa-solid fa-scale-balanced me-2"></i>Financial & Credit Profile</h4>
+                        
+                        <div class="row g-4">
+                            <!-- Loan Amount -->
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="Loan_Amount" class="form-label">Requested Credit Limit / Loan Amount</label>
+                                        <span id="val-Loan_Amount" class="badge bg-secondary">$10,000</span>
+                                    </div>
+                                    <input type="range" class="form-range" min="1000" max="200000" step="1000" id="Loan_Amount" name="Loan_Amount" value="10000">
+                                </div>
+                            </div>
+                            
+                            <!-- Existing Debt -->
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="Existing_Debt" class="form-label">Total Outstanding Debt</label>
+                                        <span id="val-Existing_Debt" class="badge bg-secondary">$5,000</span>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="150000" step="500" id="Existing_Debt" name="Existing_Debt" value="5000">
+                                </div>
+                            </div>
+                            
+                            <!-- Credit Score -->
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="Credit_Score" class="form-label">FICO Credit Score</label>
+                                        <span id="val-Credit_Score" class="badge bg-secondary">700</span>
+                                    </div>
+                                    <input type="range" class="form-range" min="300" max="850" step="5" id="Credit_Score" name="Credit_Score" value="700">
+                                    <div class="form-text text-muted">Range: 300 (Poor) - 850 (Exceptional)</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Credit History (Radio) -->
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label class="form-label d-block">Credit History Defaults</label>
+                                    <div class="btn-group w-100" role="group" aria-label="Credit History">
+                                        <input type="radio" class="btn-check" name="Credit_History" id="history-good" value="1" checked autocomplete="off">
+                                        <label class="btn btn-outline-secondary py-2" for="history-good">
+                                            <i class="fa-solid fa-circle-check text-success me-1"></i> No Defaults (Good History)
+                                        </label>
+                                        
+                                        <input type="radio" class="btn-check" name="Credit_History" id="history-bad" value="0" autocomplete="off">
+                                        <label class="btn btn-outline-secondary py-2" for="history-bad">
+                                            <i class="fa-solid fa-circle-xmark text-danger me-1"></i> Has Defaults (Bad History)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment History -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="Payment_History_Status" class="form-label">Recent Payment History</label>
+                                    <select class="form-select" id="Payment_History_Status" name="Payment_History_Status" required>
+                                        <option value="On-time" selected>On-time Payments</option>
+                                        <option value="Delayed">Delayed Payments / Delinquent</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Inquiries -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="Credit_Inquiries" class="form-label">Credit Inquiries (Last 6 Months)</label>
+                                        <span id="val-Credit_Inquiries" class="badge bg-secondary">1</span>
+                                    </div>
+                                    <input type="range" class="form-range" min="0" max="10" step="1" id="Credit_Inquiries" name="Credit_Inquiries" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12 mt-4 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
+                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Evaluate Application
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

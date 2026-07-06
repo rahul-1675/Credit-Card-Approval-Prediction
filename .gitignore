@@ -1,0 +1,36 @@
+# Environments
+.env
+venv/
+ENV/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / Editor configurations
+.vscode/
+.idea/
+.project
+.pydevproject
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Flask session
+.webassets-cache
+instance/
+
+# Local models (we keep requirements/code, but ignore large bin models if preferred. We can commit them or ignore them. Let's ignore WML credentials config)
+models/wml_config.json
+
+# Datasets and local databases
+data/application_record.csv
+data/credit_record.csv
+data/credit_card_data.csv
+*.db
+models/*.pkl
+model.pkl
+

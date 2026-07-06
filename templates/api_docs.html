@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}API Documentation | CredAI Pulse{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left column: Documentation -->
+    <div class="col-lg-7 mb-4">
+        <div class="glass-card">
+            <h2><i class="fa-solid fa-code text-primary me-2"></i>Developer REST API</h2>
+            <p class="text-secondary">
+                Integrate CredAI Pulse's credit decisioning engine into external banking systems, CRM portals, or customer checkout funnels.
+            </p>
+            
+            <hr class="border-secondary my-4">
+            
+            <h4 class="mb-3">Endpoint</h4>
+            <div class="p-3 bg-dark rounded border border-secondary mb-4">
+                <span class="badge bg-success me-2 py-2 px-3">POST</span>
+                <code class="text-primary font-monospace">/api/predict</code>
+            </div>
+            
+            <h4 class="mb-3">JSON Request Payload Schema</h4>
+            <p class="text-secondary" style="font-size: 0.92rem;">
+                Send a JSON object with the following fields:
+            </p>
+            <div class="table-responsive">
+                <table class="table table-custom table-sm mb-4">
+                    <thead>
+                        <tr>
+                            <th>Field Name</th>
+                            <th>Type</th>
+                            <th>Range / Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Age</td><td>Integer</td><td>18 - 75</td></tr>
+                        <tr><td>Gender</td><td>String</td><td>"Male", "Female"</td></tr>
+                        <tr><td>Marital_Status</td><td>String</td><td>"Single", "Married", "Divorced", "Widowed"</td></tr>
+                        <tr><td>Education_Level</td><td>String</td><td>"High School", "Graduate", "Postgraduate", "Doctorate"</td></tr>
+                        <tr><td>Employment_Type</td><td>String</td><td>"Salaried", "Self-Employed", "Retired", "Unemployed"</td></tr>
+                        <tr><td>Employment_Duration_Years</td><td>Float</td><td>0.0 - 40.0</td></tr>
+                        <tr><td>Annual_Income</td><td>Float</td><td>5000.0 - 450000.0</td></tr>
+                        <tr><td>Loan_Amount</td><td>Float</td><td>1000.0 - 200000.0</td></tr>
+                        <tr><td>Existing_Debt</td><td>Float</td><td>0.0 - 150000.0</td></tr>
+                        <tr><td>Credit_Score</td><td>Integer</td><td>300 - 850 (FICO)</td></tr>
+                        <tr><td>Credit_History</td><td>Integer</td><td>1 (No defaults), 0 (Has defaults)</td></tr>
+                        <tr><td>Payment_History_Status</td><td>String</td><td>"On-time", "Delayed"</td></tr>
+                        <tr><td>Credit_Inquiries</td><td>Integer</td><td>0 - 10 (Last 6 months)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="mb-3">Sample curl Command</h4>
+            <pre class="p-3 bg-dark text-success rounded border border-secondary font-monospace" style="font-size: 0.85rem; overflow-x: auto;">
+curl -X POST http://127.0.0.1:5000/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Age": 30,
+    "Gender": "Female",
+    "Marital_Status": "Married",
+    "Education_Level": "Graduate",
+    "Employment_Type": "Salaried",
+    "Employment_Duration_Years": 4.5,
+    "Annual_Income": 95000.0,
+    "Loan_Amount": 20000.0,
+    "Existing_Debt": 12000.0,
+    "Credit_Score": 730,
+    "Credit_History": 1,
+    "Payment_History_Status": "On-time",
+    "Credit_Inquiries": 1
+  }'</pre>
+        </div>
+    </div>
+    
+    <!-- Right column: Interactive Console -->
+    <div class="col-lg-5 mb-4">
+        <div class="glass-card h-100">
+            <h4 class="mb-3 text-secondary"><i class="fa-solid fa-terminal me-2"></i>Interactive Sandbox</h4>
+            <p class="text-secondary mb-4" style="font-size: 0.9rem;">
+                Submit raw JSON input variables below to simulate an API request.
+            </p>
+            
+            <form id="tryApiForm">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Age</label>
+                        <input type="number" class="form-control form-control-sm" name="Age" value="30" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Gender</label>
+                        <select class="form-select form-select-sm" name="Gender">
+                            <option value="Male">Male</option>
+                            <option value="Female" selected>Female</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Income (USD)</label>
+                        <input type="number" class="form-control form-control-sm" name="Annual_Income" value="95000" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Credit Score</label>
+                        <input type="number" class="form-control form-control-sm" name="Credit_Score" value="730" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Loan Amount</label>
+                        <input type="number" class="form-control form-control-sm" name="Loan_Amount" value="20000" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Existing Debt</label>
+                        <input type="number" class="form-control form-control-sm" name="Existing_Debt" value="12000" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Inquiries</label>
+                        <input type="number" class="form-control form-control-sm" name="Credit_Inquiries" value="1" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">History Defaults</label>
+                        <select class="form-select form-select-sm" name="Credit_History">
+                            <option value="1" selected>No Defaults (Good)</option>
+                            <option value="0">Defaults (Bad)</option>
+                        </select>
+                    </div>
+                    <!-- Hidden elements with default values to keep form clean -->
+                    <input type="hidden" name="Marital_Status" value="Married">
+                    <input type="hidden" name="Education_Level" value="Graduate">
+                    <input type="hidden" name="Employment_Type" value="Salaried">
+                    <input type="hidden" name="Employment_Duration_Years" value="4.5">
+                    <input type="hidden" name="Payment_History_Status" value="On-time">
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mb-4 py-2">
+                    <i class="fa-solid fa-play me-2"></i>Send Request
+                </button>
+            </form>
+            
+            <h5 class="text-secondary"><i class="fa-solid fa-reply me-2"></i>Response</h5>
+            <pre id="apiResponse" class="p-3 bg-dark text-info rounded border border-secondary font-monospace" style="font-size: 0.8rem; min-height: 180px; max-height: 250px; overflow-y: auto;">Submit form to view response...</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

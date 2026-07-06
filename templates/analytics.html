@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics & Model Insights | CredAI Pulse{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fa-solid fa-square-poll-vertical text-primary me-2"></i>Analytics & Model Insights</h2>
+        <p class="text-secondary">Explore details on dataset characteristics, feature correlations, and classifier evaluations.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Navigation Tabs -->
+    <div class="col-12 mb-4">
+        <ul class="nav nav-pills gap-2" id="analyticsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active btn-secondary" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metrics" type="button" role="tab" aria-controls="metrics" aria-selected="true">
+                    <i class="fa-solid fa-square-check me-2"></i>Model Evaluation Metrics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link btn-secondary" id="roc-tab" data-bs-toggle="tab" data-bs-target="#roc" type="button" role="tab" aria-controls="roc" aria-selected="false">
+                    <i class="fa-solid fa-chart-area me-2"></i>ROC & Confusion Matrices
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link btn-secondary" id="features-tab" data-bs-toggle="tab" data-bs-target="#features" type="button" role="tab" aria-controls="features" aria-selected="false">
+                    <i class="fa-solid fa-sliders me-2"></i>Feature Importances & Heatmap
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link btn-secondary" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab" aria-controls="data" aria-selected="false">
+                    <i class="fa-solid fa-people-group me-2"></i>Data Distribution
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="col-12">
+        <div class="tab-content" id="analyticsTabsContent">
+            
+            <!-- Tab 1: Evaluation Metrics -->
+            <div class="tab-pane fade show active" id="metrics" role="tabpanel" aria-labelledby="metrics-tab">
+                <div class="glass-card">
+                    <h4 class="mb-4">Model Performance Summary</h4>
+                    <p class="text-secondary mb-4">
+                        All models were trained on 80% of the dataset (2,000 samples) and validated on the remaining 20% (500 samples) using Stratified K-Fold cross-validation to prevent overfitting.
+                    </p>
+                    
+                    <div class="table-responsive mb-4">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Test Accuracy</th>
+                                    <th>Test Precision</th>
+                                    <th>Test Recall</th>
+                                    <th>Test F1-Score</th>
+                                    <th>Test ROC-AUC</th>
+                                    <th>CV F1-Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for name, metrics in results.metrics.items() %}
+                                <tr {% if name == results.best_model_name %}class="table-active" style="border-left: 3px solid var(--primary);"{% endif %}>
+                                    <td>
+                                        <strong>{{ name }}</strong>
+                                        {% if name == results.best_model_name %}
+                                        <span class="badge bg-success ms-2"><i class="fa-solid fa-crown me-1"></i>Best</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ (metrics.Accuracy * 100) | round(2) }}%</td>
+                                    <td>{{ (metrics.Precision * 100) | round(2) }}%</td>
+                                    <td>{{ (metrics.Recall * 100) | round(2) }}%</td>
+                                    <td><strong>{{ (metrics['F1-Score'] * 100) | round(2) }}%</strong></td>
+                                    <td>{{ metrics['ROC-AUC'] | round(4) }}</td>
+                                    <td>{{ metrics['CV-F1-Mean'] | round(4) }} &plusmn; {{ metrics['CV-F1-Std'] | round(4) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="alert alert-info bg-dark border-secondary text-secondary mb-0">
+                        <h5>Metrics Key Definitions:</h5>
+                        <ul class="mb-0" style="font-size: 0.92rem;">
+                            <li><strong>Accuracy:</strong> Proportion of total correct predictions.</li>
+                            <li><strong>Precision:</strong> Out of all applications predicted as "Approved", how many were actually correct (minimizes bad loans).</li>
+                            <li><strong>Recall:</strong> Out of all applications that should be "Approved", how many did the model find (minimizes lost revenue).</li>
+                            <li><strong>F1-Score:</strong> Harmonic mean of Precision and Recall. Essential for balanced classification.</li>
+                            <li><strong>ROC-AUC:</strong> Area Under the Receiver Operating Characteristic curve. Measures model discriminative power between classes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: ROC & Confusion Matrices -->
+            <div class="tab-pane fade" id="roc" role="tabpanel" aria-labelledby="roc-tab">
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="glass-card h-100">
+                            <h4 class="mb-3">ROC Curves Comparison</h4>
+                            <p class="text-secondary mb-4" style="font-size: 0.9rem;">
+                                The ROC curve plots the True Positive Rate (Sensitivity) against the False Positive Rate (1-Specificity). A curve closer to the top-left corner indicates superior classification capability.
+                            </p>
+                            <img src="{{ url_for('static', filename='images/roc_curves.png') }}" class="img-fluid analytics-plot" alt="ROC Curves Comparison">
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 mb-4">
+                        <div class="glass-card h-100">
+                            <h4 class="mb-3">Confusion Matrices</h4>
+                            <p class="text-secondary mb-4" style="font-size: 0.9rem;">
+                                Matrix grid showing True Negatives (Top-Left), False Positives (Top-Right), False Negatives (Bottom-Left), and True Positives (Bottom-Right) for each classifier.
+                            </p>
+                            <img src="{{ url_for('static', filename='images/confusion_matrices.png') }}" class="img-fluid analytics-plot" alt="Confusion Matrices Comparison">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 3: Feature Importances & Heatmap -->
+            <div class="tab-pane fade" id="features" role="tabpanel" aria-labelledby="features-tab">
+                <div class="row">
+                    <div class="col-lg-7 mb-4">
+                        <div class="glass-card h-100">
+                            <h4 class="mb-3">Top 10 Feature Importances</h4>
+                            <p class="text-secondary mb-4" style="font-size: 0.9rem;">
+                                Comparison of variables that contributed most to the decisions in ensemble methods. Higher scores denote greater predictive power.
+                            </p>
+                            <img src="{{ url_for('static', filename='images/feature_importance.png') }}" class="img-fluid analytics-plot" alt="Feature Importance Plot">
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-5 mb-4">
+                        <div class="glass-card h-100">
+                            <h4 class="mb-3">Feature Correlation Matrix</h4>
+                            <p class="text-secondary mb-4" style="font-size: 0.9rem;">
+                                Heatmap illustrating relationships between numeric inputs. Values near 1 or -1 express strong linear dependencies.
+                            </p>
+                            <img src="{{ url_for('static', filename='images/correlation_heatmap.png') }}" class="img-fluid analytics-plot" alt="Correlation Heatmap">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 4: Data Distribution -->
+            <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 mb-4">
+                        <div class="glass-card text-center">
+                            <h4 class="mb-3">Target Class Distribution</h4>
+                            <p class="text-secondary mb-4" style="font-size: 0.9rem;">
+                                Displays the proportion of approved vs. rejected applications in the training dataset, verifying class balance.
+                            </p>
+                            <img src="{{ url_for('static', filename='images/class_distribution.png') }}" class="img-fluid analytics-plot" style="max-width: 450px; margin: 0 auto;" alt="Class Distribution">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

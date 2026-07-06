@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | CredAI Pulse{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-lg-8">
+        <h1 class="display-5 mb-2">Automated Credit Approval System</h1>
+        <p class="text-secondary lead">
+            A production-ready solution leveraging machine learning and IBM Watson Machine Learning to evaluate creditworthiness, identify high-risk applicants, and accelerate loan approval workflows.
+        </p>
+    </div>
+    <div class="col-lg-4 d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+        <a href="{{ url_for('apply') }}" class="btn btn-primary btn-lg">
+            <i class="fa-solid fa-file-invoice-dollar me-2"></i>New Eligibility Check
+        </a>
+    </div>
+</div>
+
+<!-- Dashboard Metrics -->
+<div class="row g-4 mb-5">
+    <div class="col-sm-6 col-xl-3">
+        <div class="glass-card metric-card">
+            <div class="metric-title">Optimal Model</div>
+            <div class="metric-value text-primary">{{ results.best_model_name }}</div>
+            <p class="text-muted mb-0 mt-2">Auto-selected by F1-Score</p>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="glass-card metric-card secondary">
+            <div class="metric-title">Training Dataset</div>
+            <div class="metric-value text-secondary">2,500</div>
+            <p class="text-muted mb-0 mt-2">Synthetic application profiles</p>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="glass-card metric-card success">
+            <div class="metric-title">Approval Rate</div>
+            <div class="metric-value text-success">53.48%</div>
+            <p class="text-muted mb-0 mt-2">Historical baseline</p>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="glass-card metric-card accent">
+            <div class="metric-title">Active Inference</div>
+            <div class="metric-value text-accent" style="font-size: 1.8rem; margin-top: 10px;">{{ inference_mode }}</div>
+            <p class="text-muted mb-0 mt-2">Local / Cloud Watson ML</p>
+        </div>
+    </div>
+</div>
+
+<!-- Model Performance Comparison -->
+<div class="row">
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="mb-0">
+                    <i class="fa-solid fa-scale-balanced me-2 text-primary"></i>Model Performance Comparison
+                </h3>
+                <span class="badge bg-primary px-3 py-2">Test Data Partition (20%)</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>Model Name</th>
+                            <th>Accuracy</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1-Score</th>
+                            <th>ROC-AUC</th>
+                            <th>CV F1-Score (Mean)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, metrics in results.metrics.items() %}
+                        <tr {% if name == results.best_model_name %}class="table-active" style="border-left: 3px solid var(--primary);"{% endif %}>
+                            <td>
+                                <strong>{{ name }}</strong>
+                                {% if name == results.best_model_name %}
+                                <span class="badge bg-success ms-2"><i class="fa-solid fa-crown me-1"></i>Best</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ (metrics.Accuracy * 100) | round(2) }}%</td>
+                            <td>{{ (metrics.Precision * 100) | round(2) }}%</td>
+                            <td>{{ (metrics.Recall * 100) | round(2) }}%</td>
+                            <td>
+                                <strong>{{ (metrics['F1-Score'] * 100) | round(2) }}%</strong>
+                            </td>
+                            <td>{{ metrics['ROC-AUC'] | round(4) }}</td>
+                            <td>{{ metrics['CV-F1-Mean'] | round(4) }} &plusmn; {{ metrics['CV-F1-Std'] | round(4) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-3 text-secondary" style="font-size: 0.9rem;">
+                <p class="mb-0">
+                    <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                    F1-Score is chosen as the primary selection metric to strike an optimal balance between identifying default-prone applicants (Recall) and minimizing false-positives for eligible applicants (Precision).
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
